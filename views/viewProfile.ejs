@@ -1,0 +1,100 @@
+<%- include('partials/header') %>
+
+<div class="jumbotron text-center">
+  <div class="container">
+    <i class="fas fa-key fa-6x"></i>
+    <h1 class="display-3">Welcome!</h1>
+    <%
+      if(message !== "")
+      {
+    %>
+        <p><%= message %></p>
+    <%
+      }
+    %>
+    <hr>
+
+    <div class="col-md-12">
+        <form id="form1" action="/profile/<%= userId %>" method="POST">
+            <input type="hidden" name="put" value="y">
+              <%
+              if(profile == null)
+              {
+              %>
+                <div class="form-group row">
+                  <label for="firstname" class="col-4 col-form-label">First Name*</label>
+                  <div class="col-8">
+                    <input id="firstname" name="firstname" placeholder="First Name" class="form-control here" required="required" type="text">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="lastname" class="col-4 col-form-label">Last Name</label>
+                  <div class="col-8">
+                    <input id="lastname" name="lastname" placeholder="Last Name" class="form-control here" type="text">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="age" class="col-4 col-form-label">Age*</label>
+                  <div class="col-8">
+                    <input id="age" name="age" placeholder="Age" class="form-control here" required="required" type="text">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="degree" class="col-4 col-form-label">Degree*</label>
+                  <div class="col-8">
+                    <input id="degree" name="degree" placeholder="Degree" class="form-control here" required="required" type="text">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="favcourse" class="col-4 col-form-label">Favourite Course*</label>
+                  <div class="col-8">
+                    <input id="favcourse" name="favcourse" placeholder="Favourite Course" class="form-control here" required="required" type="text">
+                  </div>
+                </div>
+                <%
+                }
+                else
+                {
+                  console.log(profile);
+                %>
+                  <div class="form-group row">
+                    <label for="firstname" class="col-4 col-form-label">First Name*</label>
+                    <div class="col-8">
+                      <input id="firstname" name="firstname" placeholder="First Name" class="form-control here" required="required" type="text" value="<%= profile.name %>">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="lastname" class="col-4 col-form-label">Last Name</label>
+                    <div class="col-8">
+                      <input id="lastname" name="lastname" placeholder="Last Name" class="form-control here" type="text" value="<%= profile.lastName %>">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="age" class="col-4 col-form-label">Age*</label>
+                    <div class="col-8">
+                      <input id="age" name="age" placeholder="Age" class="form-control here" required="required" type="text" value="<%= profile.age %>">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="degree" class="col-4 col-form-label">Degree*</label>
+                    <div class="col-8">
+                      <input id="degree" name="degree" placeholder="Degree" class="form-control here" required="required" type="text" value="<%= profile.degree %>">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="favcourse" class="col-4 col-form-label">Favourite Course*</label>
+                    <div class="col-8">
+                      <input id="favcourse" name="favcourse" placeholder="Favourite Course" class="form-control here" required="required" type="text"  value="<%= profile.favouriteCourse %>">
+                    </div>
+                  </div>
+                <%
+                }
+                %>
+            </form>
+        </div>
+    <button class="btn btn-light btn-lg" form="form1" type="submit" name="button">Save Changes</button>
+    <a class="btn btn-light btn-lg" href="/logout" role="button">Log Out</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

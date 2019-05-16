@@ -12,14 +12,22 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-mongoose.connect("mongodb://localhost:27017/zaioUserDb", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/zaioUserDb", {useNewUrlParser: true,
+useFindAndModify: false});
 
 
 const userSchema = new mongoose.Schema(
   {
     username: String,
     email: String,
-    password: String
+    password: String,
+    profile: {
+      name: String,
+      lastName: String,
+      age: Number,
+      degree: String,
+      favouriteCourse: String
+    }
   }
 );
 
@@ -41,24 +49,43 @@ app.post("/signup", function(req, res){
   const newUser =  new User({
     username: req.body.username,
     email: req.body.email,
-    password: md5(req.body.password)
+    password: md5(req.body.password),
+    profile: {
+      name: "",
+      lastName: "",
+      age: null,
+      degree: "",
+      favouriteCourse: ""
+    }
   });
 
   User.findOne({username: newUser.username}, function(err, foundUser){
     if (!err) {
       if (foundUser) {
-        if (foundUser.password === newUser.password) {
-          res.render("success");
-        }
+        res.render("failure", {
+          message: "User with this username already exists!"
+        });
       }
     }
   });
 
   newUser.save(function(err){
     if (err) {
-      res.render("failure");
+      res.render("failure", {
+        message: "Something went wrong with your signup. Please try again."
+      });
     } else {
-      res.render("success");
+
+      User.findOne({username: newUser.username}, function(err, foundUser){
+        if (!err) {
+          if (foundUser) {
+            res.render("success", {
+              userid: foundUser._id
+            });
+          }
+        }
+      });
+
     }
   });
 });
@@ -69,11 +96,21 @@ app.post("/login", function(req, res){
 
   User.findOne({username: username}, function(err, foundUser){
     if (err) {
-      res.render("failure");
+      res.render("failure", {
+        message: "User with this username does not exist!"
+      });
     } else {
       if (foundUser) {
         if (foundUser.password === password) {
-          res.render("success");
+          res.render("success", {
+            userid: foundUser._id
+          });
+        }
+        else
+        {
+          res.render("failure", {
+            message: "Incorrect password!"
+          });
         }
       }
     }
@@ -82,6 +119,56 @@ app.post("/login", function(req, res){
 
 app.get("/logout", function(req, res){
   res.redirect("/");
+});
+
+app.get("/profile/:userid", function(req, res){
+  const userId = req.params.userid;
+
+
+  User.findOne({_id: userId}, function(err, foundUser){
+    if(!err){
+      res.render("viewProfile", {
+        userId: userId,
+        profile: foundUser.profile,
+        message: ""
+      });
+    } else {
+      res.render("/");
+    }
+  });
+});
+
+app.post("/profile/:userid", function(req, res){
+  const userId = req.params.userid;
+  const profileInfo = {
+    name: req.body.firstname,
+    lastName: req.body.lastname,
+    age: req.body.age,
+    degree: req.body.degree,
+    favouriteCourse: req.body.favcourse
+  };
+  const newValues = { $set: {profile: profileInfo}};
+  User.findByIdAndUpdate(
+    userId,
+    newValues,
+    {new: true},
+    function(err, updatedUser) {
+      if(!err){
+        console.log(updatedUser.profile);
+        res.render("viewProfile", {
+          userId: userId,
+          profile: updatedUser.profile,
+          message: "Save Successfull!"
+        });
+      }
+      else{
+        res.render("viewProfile", {
+          userId: userId,
+          message: "Save Failed!"
+        });
+      }
+    }
+   );
 });
 
 app.listen(3000, function() {
